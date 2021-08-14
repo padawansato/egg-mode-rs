@@ -27,15 +27,26 @@ async fn main() {
     };
 
     let user = egg_mode::auth::verify_tokens(&token).await.unwrap();
-    println!("{}", user.screen_name);
+    println!("User @{}'s timeline", user.screen_name);
 
     let timeline = egg_mode::tweet::home_timeline(&token).with_page_size(10);
     let (timeline, feed) = timeline.start().await.unwrap();
-    for tweet in &*feed {
-        println!(
-            "<@{}> {}",
-            tweet.user.as_ref().unwrap().screen_name,
-            tweet.text
-        );
+    loop {
+        let mut id: u64 ~
+        for tweet in &*feed {
+            println!(
+                "<@{}> {}",
+                tweet.user.as_ref().unwrap().screen_name,
+                tweet.text
+            );
+        }
+        // let (timeline, feed) = timeline.older(None).await.unwrap();
+        // for tweet in &*feed {
+        //     println!(
+        //         "<@{}> {}",
+        //         tweet.user.as_ref().unwrap().screen_name,
+        //         tweet.text
+        //     );
+        // }
     }
 }
