@@ -1,5 +1,6 @@
 use dotenv::dotenv;
 use egg_mode;
+use egg_mode::tweet::DraftTweet;
 use std::env;
 use tokio::prelude::*;
 
@@ -19,6 +20,5 @@ async fn main() {
     };
 
     let user = egg_mode::auth::verify_tokens(&token).await.unwrap();
-
     println!("{}", user.screen_name);
 }
