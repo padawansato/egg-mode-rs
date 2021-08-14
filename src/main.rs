@@ -13,6 +13,7 @@ pub struct Timeline {
 
 #[tokio::main]
 async fn main() {
+    // fn main() {
     dotenv().ok();
 
     let c_key = env::var("CONSUMER_KEY").expect("Please set consumer-key in .env");
@@ -29,24 +30,16 @@ async fn main() {
     let user = egg_mode::auth::verify_tokens(&token).await.unwrap();
     println!("User @{}'s timeline", user.screen_name);
 
+    // get timeline
     let timeline = egg_mode::tweet::home_timeline(&token).with_page_size(10);
-    let (timeline, feed) = timeline.start().await.unwrap();
-    loop {
-        let mut id: u64 ~
-        for tweet in &*feed {
-            println!(
-                "<@{}> {}",
-                tweet.user.as_ref().unwrap().screen_name,
-                tweet.text
-            );
-        }
-        // let (timeline, feed) = timeline.older(None).await.unwrap();
-        // for tweet in &*feed {
-        //     println!(
-        //         "<@{}> {}",
-        //         tweet.user.as_ref().unwrap().screen_name,
-        //         tweet.text
-        //     );
-        // }
+    let (timeline, feed) = timeline.older(None).await.unwrap();
+
+    // print timeline
+    for tweet in &*feed {
+        println!(
+            "<@{}> {}",
+            tweet.user.as_ref().unwrap().screen_name,
+            tweet.text
+        );
     }
 }
