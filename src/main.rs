@@ -4,6 +4,13 @@ use egg_mode::tweet::DraftTweet;
 use std::env;
 use tokio::prelude::*;
 
+pub struct Timeline {
+    pub count: i32,
+    pub max_id: Option<u64>,
+    pub min_id: Option<u64>,
+    // some fields omitted
+}
+
 #[tokio::main]
 async fn main() {
     dotenv().ok();
@@ -21,4 +28,14 @@ async fn main() {
 
     let user = egg_mode::auth::verify_tokens(&token).await.unwrap();
     println!("{}", user.screen_name);
+
+    let timeline = egg_mode::tweet::home_timeline(&token).with_page_size(10);
+    let (timeline, feed) = timeline.start().await.unwrap();
+    for tweet in &*feed {
+        println!(
+            "<@{}> {}",
+            tweet.user.as_ref().unwrap().screen_name,
+            tweet.text
+        );
+    }
 }
