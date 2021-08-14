@@ -12,7 +12,6 @@ pub struct Timeline {
 
 #[tokio::main]
 async fn main() {
-    // fn main() {
     dotenv().ok();
 
     let c_key = env::var("CONSUMER_KEY").expect("Please set consumer-key in .env");
