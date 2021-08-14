@@ -8,7 +8,6 @@ pub struct Timeline {
     pub count: i32,
     pub max_id: Option<u64>,
     pub min_id: Option<u64>,
-    // some fields omitted
 }
 
 #[tokio::main]
@@ -32,6 +31,7 @@ async fn main() {
 
     // get timeline
     let timeline = egg_mode::tweet::home_timeline(&token).with_page_size(10);
+
     let (timeline, feed) = timeline.older(None).await.unwrap();
 
     // print timeline
