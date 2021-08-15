@@ -2,6 +2,7 @@ use dotenv::dotenv;
 use egg_mode;
 use egg_mode::tweet::DraftTweet;
 use std::env;
+use std::{thread, time};
 use tokio::prelude::*;
 
 pub struct Timeline {
@@ -27,11 +28,12 @@ async fn main() {
 
     let user = egg_mode::auth::verify_tokens(&token).await.unwrap();
     println!("User @{}'s timeline", user.screen_name);
+    println!("**************************************************************");
 
     // get timeline
     let timeline = egg_mode::tweet::home_timeline(&token).with_page_size(10);
 
-    let (timeline, feed) = timeline.older(None).await.unwrap();
+    let (mut timeline, feed) = timeline.older(None).await.unwrap();
 
     // print timeline
     for tweet in &*feed {
@@ -40,5 +42,26 @@ async fn main() {
             tweet.user.as_ref().unwrap().screen_name,
             tweet.text
         );
+    }
+    // reload the timeline with only what's new
+    println!("**************************************************************");
+    let delay = time::Duration::from_secs(3);
+    loop {
+        println!("sleeping for 3 sec");
+        thread::sleep(delay);
+        let timeline = egg_mode::tweet::home_timeline(&token).with_page_size(10);
+        let (mut timeline, _feed) = timeline.start().await.unwrap();
+        let reload_id = timeline.max_id.unwrap();
+        //reload the timeline with only what's new
+        timeline.reset();
+        let (timeline, _new_posts) = timeline.older(Some(reload_id)).await.unwrap();
+        // print timeline
+        for tweet in &*_new_posts {
+            println!(
+                "<@{}> {}",
+                tweet.user.as_ref().unwrap().screen_name,
+                tweet.text
+            );
+        }
     }
 }
