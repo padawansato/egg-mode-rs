@@ -45,16 +45,26 @@ async fn main() {
     }
     // reload the timeline with only what's new
     println!("**************************************************************");
-    let delay = time::Duration::from_secs(3);
+    let delay = time::Duration::from_secs(60);
+
     loop {
-        println!("sleeping for 3 sec");
+        println!("sleeping for 60 sec");
         thread::sleep(delay);
         let timeline = egg_mode::tweet::home_timeline(&token).with_page_size(10);
-        let (mut timeline, _feed) = timeline.start().await.unwrap();
+
+        let (timeline, _feed) = timeline.start().await.unwrap();
+
+        //keep the max_id for later
         let reload_id = timeline.max_id.unwrap();
+
+        //simulate scrolling down a little bit
+        let (timeline, _feed) = timeline.older(None).await.unwrap();
+        let (mut timeline, _feed) = timeline.older(None).await.unwrap();
+
         //reload the timeline with only what's new
         timeline.reset();
         let (timeline, _new_posts) = timeline.older(Some(reload_id)).await.unwrap();
+
         // print timeline
         for tweet in &*_new_posts {
             println!(
