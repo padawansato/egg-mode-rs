@@ -1,9 +1,7 @@
 use dotenv::dotenv;
 use egg_mode;
-use egg_mode::tweet::DraftTweet;
 use std::env;
 use std::{thread, time};
-use tokio::prelude::*;
 
 pub struct Timeline {
     pub count: i32,
@@ -33,7 +31,7 @@ async fn main() {
     // get timeline
     let timeline = egg_mode::tweet::home_timeline(&token).with_page_size(10);
 
-    let (mut timeline, feed) = timeline.older(None).await.unwrap();
+    let (_timeline, feed) = timeline.older(None).await.unwrap();
 
     // print timeline
     for tweet in &*feed {
@@ -45,10 +43,11 @@ async fn main() {
     }
     // reload the timeline with only what's new
     println!("**************************************************************");
-    let delay = time::Duration::from_secs(60);
+    let num_time: u64 = 300;
+    let delay = time::Duration::from_secs(num_time);
 
     loop {
-        println!("sleeping for 60 sec");
+        println!("sleeping for {} sec", &num_time);
         thread::sleep(delay);
         let timeline = egg_mode::tweet::home_timeline(&token).with_page_size(10);
 
@@ -59,11 +58,11 @@ async fn main() {
 
         //simulate scrolling down a little bit
         let (timeline, _feed) = timeline.older(None).await.unwrap();
-        let (mut timeline, _feed) = timeline.older(None).await.unwrap();
+        let (mut _timeline, _feed) = timeline.older(None).await.unwrap();
 
         //reload the timeline with only what's new
-        timeline.reset();
-        let (timeline, _new_posts) = timeline.older(Some(reload_id)).await.unwrap();
+        _timeline.reset();
+        let (_timeline, _new_posts) = _timeline.older(Some(reload_id)).await.unwrap();
 
         // print timeline
         for tweet in &*_new_posts {
